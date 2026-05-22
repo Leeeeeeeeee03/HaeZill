@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HaeZill | Collection</title>
+  <style>
+
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=GFS+Didot&family=Space+Grotesk:wght@300;400;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0e0e0e; color: #e8e8e8; font-family: 'Space Grotesk', sans-serif; overflow-x: hidden; }
+
+    /* ── HEADER ── */
+    header {
+      padding: 24px 48px; display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #2a2a2a; position: fixed; top: 0; width: 100%; z-index: 200;
+      background: rgba(14,14,14,0.92); backdrop-filter: blur(8px);
+    }
+    .logo-wordmark {
+      font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 30px; letter-spacing: 2px;
+      background: linear-gradient(135deg, #c9967f 0%, #b07a6e 40%, #8c4f40 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      text-decoration: none;
+    }
+    nav { display: flex; gap: 36px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; align-items: center; }
+    nav a { color: #888; text-decoration: none; transition: color 0.2s; }
+    nav a:hover, nav a.active { color: #e8e8e8; }
+
+    /* ── PROFILE ── */
+    .profile-wrap { position: relative; }
+    .profile-icon {
+      width: 34px; height: 34px; border-radius: 50%; border: 1px solid #333; background: #1a1a1a;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: border-color 0.2s; color: #666; font-size: 15px; user-select: none;
+    }
+    .profile-icon:hover { border-color: #b07a6e; color: #c9967f; }
+    .profile-icon.logged-in { border-color: #b07a6e; background: #1e1410; color: #c9967f; font-size: 13px; font-weight: 700; }
+    .profile-dropdown {
+      display: none; position: absolute; top: calc(100% + 16px); right: 0;
+      width: 300px; background: #141414; border: 1px solid #2a2a2a; z-index: 400;
+    }
+    .profile-dropdown::before {
+      content: ''; position: absolute; top: -4px; left: 4px; right: -4px; bottom: 4px;
+      border: 1px solid #b07a6e; opacity: 0.25; pointer-events: none;
+    }
+    .profile-dropdown.open { display: block; }
+    .auth-panel { padding: 28px 24px; }
+    .auth-title { font-size: 11px; letter-spacing: 4px; color: #555; text-transform: uppercase; margin-bottom: 20px; }
+    .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #222; }
+    .auth-tab {
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #555;
+      padding: 8px 0; margin-right: 20px; border-bottom: 2px solid transparent; cursor: pointer;
+      transition: all 0.2s; background: none; border-top: none; border-left: none; border-right: none;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .auth-tab.active { color: #c9967f; border-bottom-color: #b07a6e; }
+    .auth-form { display: flex; flex-direction: column; gap: 12px; }
+    .auth-input {
+      background: #0e0e0e; border: 1px solid #2a2a2a; color: #e8e8e8;
+      padding: 12px 14px; font-size: 13px; font-family: 'Space Grotesk', sans-serif;
+      letter-spacing: 1px; outline: none; transition: border-color 0.2s; width: 100%;
+    }
+    .auth-input::placeholder { color: #444; }
+    .auth-input:focus { border-color: #b07a6e; }
+    .auth-btn {
+      background: none; border: 1px solid #b07a6e; color: #c9967f;
+      font-family: 'Space Grotesk', sans-serif; font-size: 11px; letter-spacing: 3px;
+      text-transform: uppercase; padding: 13px; cursor: pointer; transition: all 0.2s; margin-top: 4px;
+    }
+    .auth-btn:hover { background: #b07a6e; color: #0e0e0e; }
+    .auth-msg { font-size: 11px; color: #c97070; letter-spacing: 1px; min-height: 16px; }
+    .user-panel { display: none; }
+    .user-header { padding: 20px 24px 16px; border-bottom: 1px solid #1e1e1e; display: flex; align-items: center; gap: 14px; }
+    .user-avatar {
+      width: 40px; height: 40px; border-radius: 50%; background: #1e1410; border: 1px solid #b07a6e;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #c9967f; flex-shrink: 0;
+    }
+    .user-name { font-size: 14px; font-weight: 700; color: #e0e0e0; }
+    .user-email { font-size: 11px; color: #555; letter-spacing: 1px; margin-top: 2px; }
+    .order-section { padding: 16px 24px; border-bottom: 1px solid #1a1a1a; }
+    .order-label { font-size: 9px; letter-spacing: 4px; color: #444; text-transform: uppercase; margin-bottom: 12px; }
+    .order-empty { font-size: 12px; color: #444; letter-spacing: 1px; padding: 8px 0; }
+    .order-item { padding: 10px 0; border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; }
+    .order-item:last-child { border-bottom: none; }
+    .order-item-name { font-size: 12px; color: #bbb; letter-spacing: 1px; }
+    .order-item-price { font-size: 12px; color: #c9967f; letter-spacing: 1px; }
+    .order-item-status { font-size: 10px; color: #555; letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+    .logout-btn {
+      display: block; width: 100%; margin: 0; background: none; border: none;
+      border-top: 1px solid #1a1a1a; color: #444; font-family: 'Space Grotesk', sans-serif;
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      padding: 16px 24px; cursor: pointer; text-align: left; transition: color 0.2s;
+    }
+    .logout-btn:hover { color: #c97070; }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      padding: 28px 48px 20px; font-size: 12px; letter-spacing: 4px; color: #666;
+      border-bottom: 1px solid #1a1a1a; display: flex; justify-content: space-between; text-transform: uppercase;
+    }
+
+    /* ── CARD ── */
+    .card {
+      position: relative; background: #141414; padding: 32px; cursor: pointer;
+      min-height: 380px; display: flex; flex-direction: column; justify-content: flex-end;
+      overflow: hidden; transition: transform 0.3s ease;
+    }
+    .card-img { position: absolute; inset: 0; background: #191919; }
+    .card::before {
+      content: ''; position: absolute; top: -3px; left: 3px; right: -3px; bottom: 3px;
+      border: 1px solid #2e2e2e; pointer-events: none; transition: all 0.3s; z-index: 2;
+    }
+    .card::after {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(255,255,255,0.012) 2px,rgba(255,255,255,0.012) 4px);
+      pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 3;
+    }
+    .card:hover { transform: translate(2px,-2px); }
+    .card:hover::before { top:3px; left:-3px; right:3px; bottom:-3px; border-color:#b07a6e; opacity:0.7; }
+    .card:hover::after { opacity:1; }
+    .card:hover .card-noise { opacity:1; }
+    .card:hover .card-name { color:#c9967f; }
+    .card:hover .card-accent { background:#b07a6e; border-color:#b07a6e; transform:rotate(45deg); }
+    .card-noise {
+      position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; z-index: 4;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");
+      background-size: 100px 100px;
+    }
+    .card-content {
+      position: relative; z-index: 5;
+      background: linear-gradient(to top,rgba(14,14,14,0.97) 0%,rgba(14,14,14,0.5) 60%,transparent 100%);
+      margin: -32px; padding: 80px 32px 0;
+    }
+    .card-idx  { font-size:11px; color:#555; letter-spacing:3px; display:block; margin-bottom:56px; }
+    .card-name { font-size:18px; font-weight:700; letter-spacing:1px; color:#e0e0e0; margin-bottom:8px; transition:color 0.2s; }
+    .card-desc { font-size:13px; color:#777; letter-spacing:2px; }
+    .card-price { font-size:14px; color:#a08070; letter-spacing:2px; margin-top:8px; }
+    .card-accent { position: absolute; top:24px; right:24px; width:10px; height:10px; background:#1e1e1e; border:1px solid #333; transition:all 0.3s; z-index:5; }
+
+    /* ── IMG PLACEHOLDER ── */
+    .img-placeholder { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; }
+    .img-placeholder-cross { width:32px; height:32px; position:relative; opacity:0.15; }
+    .img-placeholder-cross::before, .img-placeholder-cross::after { content:''; position:absolute; background:#888; }
+    .img-placeholder-cross::before { width:1px; height:100%; left:50%; top:0; }
+    .img-placeholder-cross::after  { width:100%; height:1px; top:50%; left:0; }
+    .img-placeholder-label { font-size:10px; letter-spacing:3px; color:#333; text-transform:uppercase; }
+
+    /* ── FOOTER ── */
+    footer { padding: 28px 48px; border-top: 1px solid #1a1a1a; display: flex; justify-content: space-between; align-items: center; }
+    .footer-txt { font-size: 12px; color: #555; letter-spacing: 3px; }
+    .cta {
+      font-size: 12px; letter-spacing: 3px; color: #777; border: 1px solid #2a2a2a;
+      padding: 12px 28px; cursor: pointer; transition: all 0.3s; text-transform: uppercase;
+      background: none; text-decoration: none; display: inline-block;
+    }
+    .cta:hover { border-color: #b07a6e; color: #c9967f; }
+
+    @media (max-width: 700px) {
+      header { padding: 18px 24px; }
+      .logo-wordmark { font-size: 24px; }
+      nav { gap: 16px; font-size: 11px; }
+      footer { padding: 20px 24px; }
+      .section-label { padding: 20px 24px 16px; }
+    }
+
+    .page-wrap { padding-top: 90px; min-height: 100vh; }
+    .collection-grid { padding: 40px 48px; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 28px; }
+    .show-card { position: relative; background: #141414; overflow: hidden; cursor: pointer; transition: transform 0.3s; }
+    .show-img { width:100%; aspect-ratio:16/10; background:#1c1c1c; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+    .show-img img { width:100%; height:100%; object-fit:cover; }
+    .show-card::before { content:''; position:absolute; top:-3px; left:3px; right:-3px; bottom:3px; border:1px solid #2e2e2e; pointer-events:none; transition:all 0.3s; z-index:2; }
+    .show-card:hover { transform: translate(2px,-2px); }
+    .show-card:hover::before { top:3px; left:-3px; right:3px; bottom:-3px; border-color:#b07a6e; opacity:0.7; }
+    .show-card:hover .show-name { color:#c9967f; }
+    .show-info { padding:20px 24px; }
+    .show-season { font-size:10px; letter-spacing:4px; color:#555; margin-bottom:6px; text-transform:uppercase; }
+    .show-name   { font-size:18px; font-weight:700; letter-spacing:1px; color:#e0e0e0; margin-bottom:4px; transition:color 0.2s; }
+    .show-loc    { font-size:13px; color:#666; letter-spacing:2px; }
+    @media(max-width:700px){ .collection-grid{padding:24px;} }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="logo-wordmark" href="index.html">HaeZill</a>
+    <nav>
+      <a href="collection.html" class="active">Collection</a>
+      <a href="shop.html">Shop</a>
+      <a href="archive.html">Archive</a>
+      <a href="about.html">About</a>
+      
+      <div class="profile-wrap">
+        <div class="profile-icon" id="profileIcon" onclick="toggleProfile(event)" title="My Profile">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          </svg>
+        </div>
+        <div class="profile-dropdown" id="profileDropdown">
+          <div class="auth-panel" id="authPanel">
+            <p class="auth-title">Member</p>
+            <div class="auth-tabs">
+              <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+              <button class="auth-tab" onclick="switchTab('signup')">Sign Up</button>
+            </div>
+            <div id="loginForm" class="auth-form">
+              <input class="auth-input" type="email" id="loginEmail" placeholder="Email">
+              <input class="auth-input" type="password" id="loginPw" placeholder="Password">
+              <p class="auth-msg" id="loginMsg"></p>
+              <button class="auth-btn" onclick="doLogin()">Login →</button>
+            </div>
+            <div id="signupForm" class="auth-form" style="display:none;">
+              <input class="auth-input" type="text"  id="signupName"  placeholder="Name">
+              <input class="auth-input" type="email" id="signupEmail" placeholder="Email">
+              <input class="auth-input" type="password" id="signupPw" placeholder="Password (6자 이상)">
+              <p class="auth-msg" id="signupMsg"></p>
+              <button class="auth-btn" onclick="doSignup()">Create Account →</button>
+            </div>
+          </div>
+          <div class="user-panel" id="userPanel">
+            <div class="user-header">
+              <div class="user-avatar" id="userAvatar"></div>
+              <div><p class="user-name" id="userName"></p><p class="user-email" id="userEmail"></p></div>
+            </div>
+            <div class="order-section">
+              <p class="order-label">Order History</p>
+              <div id="orderList"><p class="order-empty">No orders yet.</p></div>
+            </div>
+            <button class="logout-btn" onclick="doLogout()">Log Out</button>
+          </div>
+        </div>
+      </div>
+
+    </nav>
+  </header>
+
+  <div class="page-wrap">
+    <div class="section-label">
+      <span>01 / Collection</span>
+      <span>Season Show</span>
+    </div>
+    <div class="collection-grid">
+
+      <div class="show-card">
+        <div class="show-img"><div class="img-placeholder"><div class="img-placeholder-cross"></div><span class="img-placeholder-label">Image Placeholder</span></div></div>
+        <div class="show-info"><p class="show-season">SS 2025</p><p class="show-name">Structural Deconstruction</p><p class="show-loc">Seoul, KR</p></div>
+      </div>
+
+      <div class="show-card">
+        <div class="show-img"><div class="img-placeholder"><div class="img-placeholder-cross"></div><span class="img-placeholder-label">Image Placeholder</span></div></div>
+        <div class="show-info"><p class="show-season">FW 2024</p><p class="show-name">Raw Material Study</p><p class="show-loc">Tokyo, JP</p></div>
+      </div>
+
+      <div class="show-card">
+        <div class="show-img"><div class="img-placeholder"><div class="img-placeholder-cross"></div><span class="img-placeholder-label">Image Placeholder</span></div></div>
+        <div class="show-info"><p class="show-season">SS 2024</p><p class="show-name">Formal Disruption</p><p class="show-loc">Paris, FR</p></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <span class="footer-txt">© HaeZill Studio</span>
+    <a class="cta" href="shop.html">Shop Now →</a>
+  </footer>
+
+  <script>
+    function toggleProfile(e) { e.stopPropagation(); document.getElementById('profileDropdown').classList.toggle('open'); }
+    function closeProfileIfOpen() { document.getElementById('profileDropdown').classList.remove('open'); }
+    document.addEventListener('click', e => { if (!document.querySelector('.profile-wrap').contains(e.target)) closeProfileIfOpen(); });
+    function switchTab(tab) {
+      document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('loginForm').style.display  = tab === 'login'  ? 'flex' : 'none';
+      document.getElementById('signupForm').style.display = tab === 'signup' ? 'flex' : 'none';
+      document.querySelector('[onclick="switchTab(\''+tab+'\')"]').classList.add('active');
+      document.getElementById('loginMsg').textContent = '';
+      document.getElementById('signupMsg').textContent = '';
+    }
+    function getUser() { try { return JSON.parse(localStorage.getItem('hz_user')); } catch { return null; } }
+    function saveUser(u) { localStorage.setItem('hz_user', JSON.stringify(u)); }
+    function clearUser() { localStorage.removeItem('hz_user'); }
+    function doSignup() {
+      const name=document.getElementById('signupName').value.trim(),email=document.getElementById('signupEmail').value.trim(),pw=document.getElementById('signupPw').value,msg=document.getElementById('signupMsg');
+      if(!name||!email||!pw){msg.textContent='모든 항목을 입력해주세요.';return;}
+      if(pw.length<6){msg.textContent='비밀번호는 6자 이상이어야 합니다.';return;}
+      if(localStorage.getItem('hz_account_'+email)){msg.textContent='이미 가입된 이메일입니다.';return;}
+      localStorage.setItem('hz_account_'+email,JSON.stringify({name,email,pw}));
+      saveUser({name,email}); renderLoggedIn({name,email});
+    }
+    function doLogin() {
+      const email=document.getElementById('loginEmail').value.trim(),pw=document.getElementById('loginPw').value,msg=document.getElementById('loginMsg');
+      const acc=JSON.parse(localStorage.getItem('hz_account_'+email)||'null');
+      if(!acc||acc.pw!==pw){msg.textContent='이메일 또는 비밀번호가 올바르지 않습니다.';return;}
+      saveUser({name:acc.name,email}); renderLoggedIn({name:acc.name,email});
+    }
+    function doLogout() {
+      clearUser();
+      document.getElementById('authPanel').style.display='block';
+      document.getElementById('userPanel').style.display='none';
+      const icon=document.getElementById('profileIcon');
+      icon.classList.remove('logged-in');
+      icon.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+      closeProfileIfOpen();
+    }
+    function renderLoggedIn(user) {
+      document.getElementById('authPanel').style.display='none';
+      document.getElementById('userPanel').style.display='block';
+      document.getElementById('userName').textContent=user.name;
+      document.getElementById('userEmail').textContent=user.email;
+      document.getElementById('userAvatar').textContent=user.name.charAt(0).toUpperCase();
+      const icon=document.getElementById('profileIcon');
+      icon.classList.add('logged-in'); icon.textContent=user.name.charAt(0).toUpperCase();
+      renderOrders(user.email);
+    }
+    function renderOrders(email) {
+      const orders=JSON.parse(localStorage.getItem('hz_orders_'+email)||'[]');
+      const list=document.getElementById('orderList');
+      if(orders.length===0){list.innerHTML='<p class="order-empty">No orders yet.</p>';return;}
+      list.innerHTML=orders.slice(0,4).map(o=>`<div class="order-item"><div><p class="order-item-name">${o.name}</p><p class="order-item-status">${o.status} · ${o.date}</p></div><p class="order-item-price">${o.price}</p></div>`).join('');
+    }
+    (function init(){ const user=getUser(); if(user) renderLoggedIn(user); })();
+</script>
+</body>
+</html>
